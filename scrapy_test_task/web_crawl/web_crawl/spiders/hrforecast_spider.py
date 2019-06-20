@@ -1,4 +1,5 @@
 import scrapy
+import time
 
 
 class JobSpider(scrapy.Spider):
@@ -37,4 +38,5 @@ class JobSpider(scrapy.Spider):
             'job_time': job_data[2],
             'job_description': job_data[5:],
             'job_url': response.url,
+            'scrap_date': time.strftime('%d/%m/%Y'),
         }

@@ -1,5 +1,7 @@
 import scrapy
 import time
+from scrapy.loader import ItemLoader
+from web_crawl.items import VacancyItem
 
 
 class GazpromSpider(scrapy.Spider):
@@ -41,6 +43,8 @@ class GazpromSpider(scrapy.Spider):
         """ Gets job description
         """
 
+        vacancy = ItemLoader(item=VacancyItem(), response=response)
+
         self.count += 1
 
         job_desc = ''.join(item for item in \
@@ -50,19 +54,22 @@ class GazpromSpider(scrapy.Spider):
         job_reqs = ''.join(item for item in \
             response.css('div.job-requirements').css('::text').getall())
         job_reqs = ''.join(c for c in job_reqs if c.isprintable())
-
-        yield {
-            'count': self.count,
-            'job_title': response.css('h1.mainHeader::text').get() ,
-            'post_date': ''.join(c for c in \
+        job_date = ''.join(c for c in \
                                  response.css('span.date::text').get() if \
-                                 c.isprintable()),
-            'region': ''.join(c for c in \
+                                 c.isprintable())
+        job_region = ''.join(c for c in \
                                  response.css('span.region::text').get() if \
-                                 c.isprintable()),
-            'employer': response.css('div.employer dd::text').get(),
-            'location': response.css('div.location dd::text').get(),
-            'job_description': job_desc,
-            'job_requirements': job_reqs,
-            'scrap_date': time.strftime('%d/%m/%Y'),
-        }
+                                 c.isprintable())
+
+
+        vacancy.add_value('count', self.count)
+        vacancy.add_css('job_title', 'h1.mainHeader::text')
+        vacancy.add_value('post_date', job_date)
+        vacancy.add_value('region', job_region)
+        vacancy.add_css('employer', 'div.employer dd::text')
+        vacancy.add_css('location', 'div.location dd::text')
+        vacancy.add_value('job_description', job_desc)
+        vacancy.add_value('job_requirements', job_reqs)
+        vacancy.add_value('scrap_date', time.strftime('%d/%m/%Y'))
+
+        return vacancy.load_item()

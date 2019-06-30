@@ -39,7 +39,7 @@ class JobSpider(scrapy.Spider):
 
         vacancy.add_value('job_title', job_data[0])
         vacancy.add_value('location', job_location)
-        vacancy.add_value('post_date', job_data[2])
+        vacancy.add_value('job_employment', job_data[2])
         vacancy.add_value('job_description', job_data[5:])
         vacancy.add_value('job_url', response.url)
         vacancy.add_value('scrap_date', time.strftime('%d/%m/%Y'))

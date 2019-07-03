@@ -36,11 +36,15 @@ class JobSpider(scrapy.Spider):
         job_location = response.css('div.container section.av_textblock_section')[1]
         job_location = job_location.css('::text').get()
         job_data = job_response.css('::text').getall()
+        # remove non-printable chars
+        job_desc = []
+        for item in job_data[5:]:
+            job_desc.append(''.join(c for c in item if c.isprintable()))
 
         vacancy.add_value('job_title', job_data[0])
         vacancy.add_value('location', job_location)
         vacancy.add_value('job_employment', job_data[2])
-        vacancy.add_value('job_description', job_data[5:])
+        vacancy.add_value('job_description', job_desc)
         vacancy.add_value('job_url', response.url)
         vacancy.add_value('scrap_date', time.strftime('%d/%m/%Y'))
 
